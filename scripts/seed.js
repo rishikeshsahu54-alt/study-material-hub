@@ -1,14 +1,8 @@
-/**
- * Database Seed Script for Study Materials Hub
- * Seeds both Subjects and up to 10 Study Materials with valid local PDF files
- * Run with: npm run seed
- */
-
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 
-// Load environment variables from .env.local if present
+// Load env
 const envPath = path.resolve(__dirname, '..', '.env.local');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf-8');
@@ -30,12 +24,10 @@ if (fs.existsSync(envPath)) {
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  console.error('\n❌ ERROR: MONGODB_URI is not defined.');
-  console.error('Please configure your MongoDB Atlas connection string in .env.local first.\n');
+  console.error('Error: MONGODB_URI not found in .env.local');
   process.exit(1);
 }
 
-// Schemas
 const SubjectSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -106,7 +98,6 @@ const sampleSubjects = [
   },
 ];
 
-// Helper to create a valid minimal PDF buffer with document title
 function createSamplePdfBuffer(documentTitle) {
   const safeText = (documentTitle || 'Sample Study Document').replace(/[\(\)\\]/g, '');
   const contentStream = `BT /F1 18 Tf 50 720 Td (${safeText}) Tj ET`;
@@ -151,7 +142,7 @@ const sampleMaterialsData = [
     subjectName: 'Data Structures',
     semester: '3',
     materialType: 'Notes',
-    description: 'Detailed handwritten and typed explanations covering Binary Trees, AVL Trees, Red-Black Trees, Dijkstra Algorithm, and Graph Traversals with diagrams.',
+    description: 'Detailed explanations covering Binary Trees, AVL Trees, Red-Black Trees, Dijkstra Algorithm, and Graph Traversals with diagrams.',
     downloads: 42,
   },
   {
@@ -167,7 +158,7 @@ const sampleMaterialsData = [
     subjectName: 'Database Management Systems',
     semester: '4',
     materialType: 'Assignment',
-    description: 'Comprehensive assignment problems covering Entity-Relationship mapping, Cardinality, Relational Calculus, and Tuple Relational Algebra queries.',
+    description: 'Assignment problems covering Entity-Relationship mapping, Cardinality, Relational Calculus, and Tuple Relational Algebra queries.',
     downloads: 27,
   },
   {
@@ -175,7 +166,7 @@ const sampleMaterialsData = [
     subjectName: 'Database Management Systems',
     semester: '4',
     materialType: 'Notes',
-    description: 'Cheat sheet and in-depth guide to 1NF, 2NF, 3NF, BCNF decomposition, indexing algorithms, and complex nested SQL subqueries.',
+    description: 'Study guide covering 1NF, 2NF, 3NF, BCNF decomposition, indexing algorithms, and complex nested SQL subqueries.',
     downloads: 85,
   },
   {
@@ -183,7 +174,7 @@ const sampleMaterialsData = [
     subjectName: 'Operating Systems',
     semester: '4',
     materialType: 'Lab Manual',
-    description: 'Lab experiments implementing FCFS, SJF, Round Robin, Banker Algorithm for deadlock avoidance, and Producer-Consumer problem using Semaphores in C.',
+    description: 'Lab experiments implementing FCFS, SJF, Round Robin, Banker Algorithm for deadlock avoidance, and Producer-Consumer problem using Semaphores.',
     downloads: 34,
   },
   {
@@ -199,7 +190,7 @@ const sampleMaterialsData = [
     subjectName: 'Computer Networks',
     semester: '5',
     materialType: 'Notes',
-    description: 'Class notes detailing IP addressing, CIDR subnet calculations, TCP sliding window flow control, and routing protocols (OSPF, BGP).',
+    description: 'Class notes detailing IP addressing, CIDR subnet calculations, TCP sliding window flow control, and routing protocols.',
     downloads: 41,
   },
   {
@@ -207,7 +198,7 @@ const sampleMaterialsData = [
     subjectName: 'Web Development',
     semester: '5',
     materialType: 'Reference Book',
-    description: 'Practical guide to developing modern web applications using React hooks, Next.js routing, Express REST endpoints, and MongoDB integration.',
+    description: 'Practical guide to developing web applications using React hooks, Next.js routing, Express REST endpoints, and MongoDB integration.',
     downloads: 93,
   },
   {
@@ -229,58 +220,33 @@ const sampleMaterialsData = [
 ];
 
 async function runSeed() {
-  console.log('\n=======================================');
-  console.log('🌱 Study Materials Hub - Database Seeder');
-  console.log('=======================================\n');
-
   try {
-    console.log('Connecting to MongoDB Atlas...');
+    console.log('Connecting to database...');
     await mongoose.connect(MONGODB_URI);
-    console.log('Connected successfully!\n');
 
-    // 1. Seed Subjects
-    console.log('1. Checking and seeding subjects:');
     const subjectMap = {};
-
     for (const sub of sampleSubjects) {
       let existing = await Subject.findOne({ name: sub.name, semester: sub.semester });
       if (!existing) {
         existing = await Subject.create(sub);
-        console.log(`  ✓ Created Subject: ${sub.name} (Semester ${sub.semester})`);
-      } else {
-        console.log(`  ℹ Subject already exists: ${sub.name} (Semester ${sub.semester})`);
+        console.log(`Created subject: ${sub.name} (Sem ${sub.semester})`);
       }
       subjectMap[sub.name] = existing._id;
     }
 
-    // 2. Ensure uploads directory exists
     const uploadsDir = path.resolve(__dirname, '..', 'uploads');
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    // 3. Seed Study Materials
-    console.log('\n2. Seeding sample study materials (up to 10 items):');
-    let materialsSeeded = 0;
-
     for (let i = 0; i < sampleMaterialsData.length; i++) {
       const item = sampleMaterialsData[i];
       const subjectId = subjectMap[item.subjectName];
+      if (!subjectId) continue;
 
-      if (!subjectId) {
-        console.log(`  ⚠ Skipping '${item.title}': Subject '${item.subjectName}' not found.`);
-        continue;
-      }
-
-      // Check if material with same title exists
       const existingMat = await Material.findOne({ title: item.title });
-      if (existingMat) {
-        console.log(`  ℹ Material already exists: "${item.title}"`);
-        materialsSeeded++;
-        continue;
-      }
+      if (existingMat) continue;
 
-      // Generate a safe unique filename and write a valid physical PDF
       const safePrefix = item.title.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30);
       const safeFileName = `seed_${Date.now()}_${i + 1}_${safePrefix}.pdf`;
       const physicalFilePath = path.join(uploadsDir, safeFileName);
@@ -288,7 +254,6 @@ async function runSeed() {
       const pdfBuffer = createSamplePdfBuffer(item.title);
       fs.writeFileSync(physicalFilePath, pdfBuffer);
 
-      // Create Material document
       await Material.create({
         title: item.title,
         description: item.description,
@@ -301,17 +266,14 @@ async function runSeed() {
         downloads: item.downloads || 0,
       });
 
-      console.log(`  ✓ Added Material: "${item.title}" [${item.materialType}, Sem ${item.semester}]`);
-      materialsSeeded++;
+      console.log(`Created material: ${item.title}`);
     }
 
-    console.log(`\n✅ Database seeding complete! Total materials available: ${materialsSeeded}`);
-    console.log('You can now open http://localhost:3000 to search, filter, view details, and download PDFs.\n');
+    console.log('Seed completed successfully.');
   } catch (error) {
-    console.error('❌ Error during seeding:', error.message);
+    console.error('Seed error:', error.message);
   } finally {
     await mongoose.disconnect();
-    console.log('Database connection closed.\n');
   }
 }
 

@@ -8,12 +8,6 @@ import {
   Download,
   Plus,
   ArrowRight,
-  TrendingUp,
-  Clock,
-  BookOpen,
-  Calendar,
-  ExternalLink,
-  Trash2,
   Edit,
   Loader2,
   AlertCircle,
@@ -56,12 +50,11 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <AdminHeader
-        title="Admin Overview Dashboard"
-        subtitle="Manage academic repository records, uploads, and download analytics"
+        title="Dashboard"
+        subtitle="Overview of study materials, subjects, and downloads"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-12">
-        {/* Error message */}
         {error && (
           <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
@@ -69,12 +62,10 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* METRICS CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {/* Total Materials */}
           <div className="bg-white rounded-3xl border border-gray-200/80 p-6 shadow-2xs">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-gray-400   tracking-wider">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                 Total Materials
               </span>
               <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -85,15 +76,14 @@ export default function AdminDashboardPage() {
               {loading ? '...' : stats.totalMaterials}
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Active PDF documents in repository
+              Active documents in repository
             </p>
           </div>
 
-          {/* Total Subjects */}
           <div className="bg-white rounded-3xl border border-gray-200/80 p-6 shadow-2xs">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-gray-400   tracking-wider">
-                Registered Subjects
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                Subjects
               </span>
               <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                 <GraduationCap className="w-5 h-5" />
@@ -107,10 +97,9 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          {/* Total Downloads */}
           <div className="bg-white rounded-3xl border border-gray-200/80 p-6 shadow-2xs">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-gray-400   tracking-wider">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                 Total Downloads
               </span>
               <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -126,10 +115,9 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* QUICK ACTIONS BAR */}
         <div className="bg-white rounded-3xl border border-gray-200/80 p-6 shadow-2xs space-y-4">
-          <h2 className="text-sm font-bold text-gray-900   tracking-wider">
-            Quick Administrative Actions
+          <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+            Quick Actions
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Link
@@ -182,12 +170,11 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* RECENT UPLOADS TABLE */}
         <div className="bg-white rounded-3xl border border-gray-200/80 shadow-2xs overflow-hidden">
           <div className="p-6 border-b border-gray-100 flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-gray-900">
-                Recently Uploaded Study Materials
+                Recently Uploaded
               </h2>
               <p className="text-xs text-gray-400 mt-0.5">
                 The latest materials uploaded to the repository
@@ -223,7 +210,7 @@ export default function AdminDashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-gray-50/80 text-gray-400   tracking-wider font-semibold border-b border-gray-100">
+                  <tr className="bg-gray-50/80 text-gray-400 uppercase tracking-wider font-semibold border-b border-gray-100">
                     <th className="px-6 py-3.5">Title</th>
                     <th className="px-6 py-3.5">Subject</th>
                     <th className="px-6 py-3.5">Semester</th>

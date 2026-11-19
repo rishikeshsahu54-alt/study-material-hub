@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   FileText,
@@ -10,11 +10,8 @@ import {
   BookOpen,
   ArrowLeft,
   HardDrive,
-  Clock,
-  Layers,
   GraduationCap,
   AlertCircle,
-  FileCheck,
   Share2,
   Check,
 } from 'lucide-react';
@@ -49,7 +46,6 @@ function formatDate(dateStr) {
 
 export default function MaterialDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params?.id;
 
   const [material, setMaterial] = useState(null);
@@ -139,7 +135,6 @@ export default function MaterialDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-      {/* Back button */}
       <div className="flex items-center justify-between">
         <Link
           href="/"
@@ -156,20 +151,18 @@ export default function MaterialDetailPage() {
           {copied ? (
             <>
               <Check className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-emerald-600 font-semibold">Link Copied!</span>
+              <span className="text-emerald-600 font-semibold">Link Copied</span>
             </>
           ) : (
             <>
               <Share2 className="w-3.5 h-3.5 text-gray-400" />
-              <span>Share Link</span>
+              <span>Share</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Main Material Card */}
       <div className="bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
-        {/* Top Header section */}
         <div className="p-6 sm:p-8 border-b border-gray-100 bg-gradient-to-b from-blue-50/40 via-white to-white">
           <div className="flex flex-wrap items-center gap-2 mb-4">
             <span
@@ -180,10 +173,6 @@ export default function MaterialDetailPage() {
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
               <GraduationCap className="w-3.5 h-3.5" />
               Semester {material.semester}
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
-              <FileCheck className="w-3.5 h-3.5" />
-              PDF Verified
             </span>
           </div>
 
@@ -197,10 +186,9 @@ export default function MaterialDetailPage() {
           </div>
         </div>
 
-        {/* Quick Spec Matrix */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 sm:p-8 bg-gray-50/60 border-b border-gray-100">
           <div className="p-3.5 bg-white rounded-2xl border border-gray-200/60 shadow-2xs">
-            <span className="text-[11px] font-semibold text-gray-400   tracking-wider block mb-1">
+            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
               File Size
             </span>
             <span className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
@@ -210,18 +198,18 @@ export default function MaterialDetailPage() {
           </div>
 
           <div className="p-3.5 bg-white rounded-2xl border border-gray-200/60 shadow-2xs">
-            <span className="text-[11px] font-semibold text-gray-400   tracking-wider block mb-1">
-              Total Downloads
+            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+              Downloads
             </span>
             <span className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
               <Download className="w-4 h-4 text-emerald-500" />
-              {material.downloads || 0} times
+              {material.downloads || 0}
             </span>
           </div>
 
           <div className="p-3.5 bg-white rounded-2xl border border-gray-200/60 shadow-2xs">
-            <span className="text-[11px] font-semibold text-gray-400   tracking-wider block mb-1">
-              Upload Date
+            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+              Uploaded On
             </span>
             <span className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-indigo-500" />
@@ -230,8 +218,8 @@ export default function MaterialDetailPage() {
           </div>
 
           <div className="p-3.5 bg-white rounded-2xl border border-gray-200/60 shadow-2xs">
-            <span className="text-[11px] font-semibold text-gray-400   tracking-wider block mb-1">
-              File Format
+            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+              Format
             </span>
             <span className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
               <FileText className="w-4 h-4 text-rose-500" />
@@ -240,22 +228,22 @@ export default function MaterialDetailPage() {
           </div>
         </div>
 
-        {/* Description section */}
         <div className="p-6 sm:p-8 space-y-6">
-          <div>
-            <h3 className="text-xs font-bold text-gray-400   tracking-wider mb-2">
-              Description &amp; Syllabus Topics
-            </h3>
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line bg-gray-50/70 p-4 rounded-2xl border border-gray-100">
-              {material.description || 'No specific description or chapter breakdown provided for this document.'}
-            </p>
-          </div>
+          {material.description && (
+            <div>
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                Description
+              </h3>
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line bg-gray-50/70 p-4 rounded-2xl border border-gray-100">
+                {material.description}
+              </p>
+            </div>
+          )}
 
-          {/* Subject details card */}
           {material.subject && (
             <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-1">
-              <span className="text-[11px] font-semibold text-blue-600   tracking-wider block">
-                Associated Academic Subject
+              <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider block">
+                Subject
               </span>
               <p className="text-sm font-bold text-gray-900">
                 {material.subject.name} (Semester {material.subject.semester})
@@ -268,14 +256,13 @@ export default function MaterialDetailPage() {
             </div>
           )}
 
-          {/* Download CTA Bar */}
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100">
             <div>
               <span className="text-xs font-semibold text-gray-900 block">
-                Ready to study?
+                Download Resource
               </span>
               <span className="text-xs text-gray-500 block">
-                Download the complete PDF file directly to your device.
+                Download the PDF directly to your device.
               </span>
             </div>
 
@@ -285,7 +272,7 @@ export default function MaterialDetailPage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-sm transition-all disabled:opacity-75"
             >
               <Download className="w-4 h-4" />
-              <span>{downloading ? 'Downloading PDF...' : 'Download Study Material (PDF)'}</span>
+              <span>{downloading ? 'Downloading...' : 'Download PDF'}</span>
             </button>
           </div>
         </div>

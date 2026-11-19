@@ -7,8 +7,6 @@ import {
   Flame,
   Layers,
   GraduationCap,
-  Search,
-  ArrowRight,
   FileText,
   AlertCircle,
   FolderOpen,
@@ -20,7 +18,6 @@ import FilterBar from '@/components/FilterBar';
 const SEMESTERS = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
 export default function HomePage() {
-  // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [semester, setSemester] = useState('');
   const [materialType, setMaterialType] = useState('');
@@ -28,7 +25,6 @@ export default function HomePage() {
   const [sortBy, setSortBy] = useState('recent');
   const [page, setPage] = useState(1);
 
-  // Data states
   const [materials, setMaterials] = useState([]);
   const [popularMaterials, setPopularMaterials] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -39,9 +35,7 @@ export default function HomePage() {
     totalPages: 1,
   });
 
-  // UI state
   const [loading, setLoading] = useState(false);
-  const [loadingInitial, setLoadingInitial] = useState(true);
   const [error, setError] = useState('');
 
   const isFiltered = Boolean(
@@ -50,7 +44,6 @@ export default function HomePage() {
 
   const debounceTimerRef = useRef(null);
 
-  // 1. Fetch Subjects list
   const fetchSubjects = async () => {
     try {
       const res = await fetch('/api/subjects');
@@ -63,8 +56,7 @@ export default function HomePage() {
     }
   };
 
-  // 2. Fetch Popular Materials
-  const fetchOverviewData = async () => {
+  const fetchPopularMaterials = async () => {
     try {
       const popRes = await fetch('/api/materials?limit=4&sortBy=popular');
       const popJson = await popRes.json();
@@ -74,7 +66,6 @@ export default function HomePage() {
     }
   };
 
-  // 3. Fetch Query/Filtered Materials
   const fetchMaterials = useCallback(
     async (curPage = 1) => {
       setLoading(true);
@@ -107,17 +98,12 @@ export default function HomePage() {
     [searchTerm, semester, materialType, selectedSubject, sortBy]
   );
 
-  // Initial load
   useEffect(() => {
-    const init = async () => {
-      setLoadingInitial(true);
-      await Promise.all([fetchSubjects(), fetchOverviewData(), fetchMaterials(1)]);
-      setLoadingInitial(false);
-    };
-    init();
+    fetchSubjects();
+    fetchPopularMaterials();
+    fetchMaterials(1);
   }, []);
 
-  // Handle Debounced search or filter changes
   useEffect(() => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
@@ -165,26 +151,22 @@ export default function HomePage() {
 
   return (
     <div className="pb-16">
-      {/* HERO SECTION */}
       <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/60 via-white to-slate-50 border-b border-gray-200/60 pt-16 sm:pt-20 pb-12 sm:pb-14">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center justify-center">
-          {/* Main Title */}
           <h1 className="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-4 max-w-3xl">
-           All Your Study Resources in,{' '} 
-           <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 block sm:inline">
-               One Place
+            Your Study Resources,{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 block sm:inline">
+              All in One Place
             </span>
           </h1>
 
-          {/* Subtitle */}
           <p className="max-w-xl mx-auto text-sm sm:text-base text-gray-500 mb-6 leading-relaxed">
             Free and easy access to semester lecture notes, previous year exam question papers,
             assignments, and lab manuals organized by subject and semester.
           </p>
 
-          {/* Hero Search Bar */}
           <div className="w-full max-w-xl mx-auto">
             <SearchBar
               value={searchTerm}
@@ -197,7 +179,6 @@ export default function HomePage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pt-8">
-        {/* BROWSE BY SEMESTER */}
         <section id="browse-semesters" className="scroll-mt-20">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -235,7 +216,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* BROWSE BY SUBJECTS (Directory Grid) */}
         <section id="browse-subjects" className="scroll-mt-20">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -246,7 +226,7 @@ export default function HomePage() {
 
           {subjects.length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center text-xs text-gray-500">
-              No subjects registered yet. Run <code className="bg-gray-100 px-1 py-0.5 rounded">npm run seed</code> or add them from Admin.
+              No subjects registered yet.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -286,7 +266,6 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* MAIN ALL / FILTERED MATERIALS SECTION */}
         <section id="browse-materials" className="scroll-mt-20 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -313,7 +292,6 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* FILTER TOOLBAR */}
           <FilterBar
             semester={semester}
             materialType={materialType}
@@ -324,7 +302,6 @@ export default function HomePage() {
             onReset={handleResetFilters}
           />
 
-          {/* ERROR STATE */}
           {error && (
             <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
               <AlertCircle className="w-5 h-5 shrink-0" />
@@ -332,7 +309,6 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* LOADING STATE */}
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {[...Array(8)].map((_, i) => (
@@ -348,7 +324,6 @@ export default function HomePage() {
               ))}
             </div>
           ) : materials.length === 0 ? (
-            /* EMPTY STATE */
             <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-12 text-center max-w-lg mx-auto">
               <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4">
                 <FolderOpen className="w-7 h-7" />
@@ -358,8 +333,8 @@ export default function HomePage() {
               </h3>
               <p className="text-xs text-gray-500 mb-6 leading-relaxed">
                 {isFiltered
-                  ? 'We could not find any materials matching your criteria. Try adjusting or clearing your filters.'
-                  : 'No materials have been uploaded to the database yet. Admin can upload real PDFs using the Admin Portal.'}
+                  ? 'No materials matched your query. Try clearing your filters.'
+                  : 'No materials uploaded yet.'}
               </p>
               {isFiltered ? (
                 <button
@@ -368,18 +343,9 @@ export default function HomePage() {
                 >
                   Reset All Filters
                 </button>
-              ) : (
-                <Link
-                  href="/admin/login"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 transition-colors shadow-xs"
-                >
-                  <span>Go to Admin Portal</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              )}
+              ) : null}
             </div>
           ) : (
-            /* MATERIALS GRID */
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                 {materials.map((mat) => (
@@ -387,13 +353,12 @@ export default function HomePage() {
                     key={mat._id}
                     material={mat}
                     onDownloadSuccess={() => {
-                      fetchOverviewData();
+                      fetchPopularMaterials();
                     }}
                   />
                 ))}
               </div>
 
-              {/* PAGINATION */}
               {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 pt-6">
                   <button
@@ -419,7 +384,6 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* POPULAR MATERIALS (Only show when NOT actively filtering and items exist) */}
         {!isFiltered && popularMaterials.length > 0 && (
           <section className="pt-6 border-t border-gray-200/80">
             <div className="flex items-center justify-between mb-4">
@@ -439,7 +403,7 @@ export default function HomePage() {
                 <MaterialCard
                   key={mat._id}
                   material={mat}
-                  onDownloadSuccess={fetchOverviewData}
+                  onDownloadSuccess={fetchPopularMaterials}
                 />
               ))}
             </div>
